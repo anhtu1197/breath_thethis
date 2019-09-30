@@ -11,7 +11,7 @@ from keras.callbacks import ModelCheckpoint
 from keras.optimizers import Adadelta
 # from resnet import ResnetBuilder
 import tensorflow as tf
-from keras.backend.tensorflow_backend import set_session
+# from keras.backend.tensorflow_backend import set_session
 import librosa
 from sklearn.metrics import classification_report, confusion_matrix
 
@@ -25,21 +25,38 @@ print(LIST_LABELS)
 LR = 3
 N_EPOCHS = 30
 INPUT_SIZE = (40, 126, 1)
-SOURCE =  'D:/Do An/Datasets/Breath_datasets_wav/output'
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
-set_session(tf.Session(config=config))
+
+SOURCE_DEV =  'D:/Do An/Datasets/Breath_datasets_wav/Training/developement/output/'
+SOURCE_TEST =  'D:/Do An/Datasets/Breath_datasets_wav/Training/validation/output/'
+BEST_MODEL_PATH = "D:/Do An/breath-deep/model/resnet/weights-improvement-30-1.08.hdf5"
+
+# config = tf.ConfigProto()
+# config.gpu_options.allow_growth = True
+# set_session(tf.Session(config=config))
+config = tf.ConfigProto(device_count = {'GPU': 1})
+sess = tf.Session(config=config)
 
 
 # Get devset
 train_generator = BreathDataGenerator(
-        SOURCE,
+        SOURCE_DEV,
         list_labels=LIST_LABELS,
         batch_size=BATCH_SIZE,
         dim=INPUT_SIZE,
         shuffle=False)
 N_TRAIN_SAMPLES = len(train_generator.wavs)
 print("Train samples: {}".format(N_TRAIN_SAMPLES))
+
+# Get testset
+validation_generator = BreathDataGenerator(
+        SOURCE_TEST,
+        list_labels=LIST_LABELS,
+        batch_size=BATCH_SIZE,
+        dim=INPUT_SIZE,
+        shuffle=False)
+N_VALID_SAMPLES = len(validation_generator.wavs)
+print("Validation samples: {}".format(N_VALID_SAMPLES))
+
 
 
 # Model training 
@@ -70,11 +87,11 @@ if mode == 'TRAIN':
                 steps_per_epoch=N_TRAIN_SAMPLES // BATCH_SIZE,
                 initial_epoch=0,
                 epochs=N_EPOCHS,
-                # validation_data=validation_generator,
-                # validation_steps=N_VALID_SAMPLES // BATCH_SIZE,
+                validation_data=validation_generator,
+                validation_steps=N_VALID_SAMPLES // BATCH_SIZE,
                 # callbacks=callbacks_list,
-                # max_queue_size=6,
-                # workers=3,
-                # use_multiprocessing=False
+                max_queue_size=6,
+                workers=3,
+                use_multiprocessing=False
         )
-        model.save_weights(MODEL_NAME + "h5")
+        model.save_weights(MODEL_NAME + ".h5")

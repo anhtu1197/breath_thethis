@@ -3,9 +3,19 @@ import pandas as pd
 
 from pydub import AudioSegment
 
-INPUTPATH = "D:/Do An/Datasets/Breath_datasets_wav/Dataset/"
-OUTPUTPATH = "D:/Do An/Datasets/Breath_datasets_wav/"
-LABELPATH = "D:/Do An/Datasets/Breath_datasets_wav/Label/"
+
+# Dev set
+DEV_INPUT_PATH = "D:/Do An/Datasets/Breath_datasets_wav/Training/developement/data/"
+DEV_OUTPUT_PATH = "D:/Do An/Datasets/Breath_datasets_wav/Training/developement/"
+DEV_LABEL_PATH = "D:/Do An/Datasets/Breath_datasets_wav/Training/developement/label/"
+
+# Test set
+TEST_INPUT_PATH = "D:/Do An/Datasets/Breath_datasets_wav/Training/validation/data/"
+TEST_OUTPUT_PATH = "D:/Do An/Datasets/Breath_datasets_wav/Training/validation/"
+TEST_LABEL_PATH = "D:/Do An/Datasets/Breath_datasets_wav/Training/validation/label/"
+
+
+
 CHUNK = 5
 OVERLAP = 2
 OUTPUT_FOLDER = 'output'
@@ -54,6 +64,7 @@ def get_audio_segment (filename, source_path, destination_path, start, end, stat
         audio_partition.export(destination_path + '' + fname, 
                          format="wav")  # Exports to a wav file in the current path.
         start += chunk/overlap
+        # start += chunk
 
 
 def split_by_label(source_path, destination_path, label_path):
@@ -93,8 +104,11 @@ def split_by_label(source_path, destination_path, label_path):
                 get_audio_segment(filename, wav_path, output_path, breath_start, breath_end, breath, CHUNK, OVERLAP)
 
 
+# Devset
+split_by_label(DEV_INPUT_PATH, DEV_OUTPUT_PATH, DEV_LABEL_PATH)
 
-split_by_label(INPUTPATH, OUTPUTPATH, LABELPATH)
+# Testset
+split_by_label(TEST_INPUT_PATH, TEST_OUTPUT_PATH, TEST_LABEL_PATH)
 
 
 

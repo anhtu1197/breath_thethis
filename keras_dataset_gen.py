@@ -6,12 +6,12 @@ import os
 # from resnet import ResnetBuilder
 BATCH_SIZE = 32
 DIM = (40,126,1)
-
+RESAMPLE = 8000
 class BreathDataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, directory, 
                     list_labels=['normal', 'deep', 'strong'], 
-                    batch_size=32,
+                    batch_size=128,
                     dim=None,
                     classes=None, 
                     shuffle=True):
@@ -73,6 +73,7 @@ class BreathDataGenerator(keras.utils.Sequence):
             data, rate= librosa.load(list_wav[i], mono=False)
             # data = librosa.to_mono(data)
             data = np.array(data, dtype=np.float32)
+            data = librosa.resample(data, rate, RESAMPLE)
             data *= 1./32768
             if(len(data.shape) == 1):
                 # Extract the feature 
