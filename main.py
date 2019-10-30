@@ -1,10 +1,12 @@
 import numpy as np
 import os
+os.environ["CUDA_DEVICE_ORDER"]="0000:01:00.0"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 import pickle
 
 from keras_dataset_gen import BreathDataGenerator
 from simple_CNN import SimpleCNN
-
+from LSTM_MODEL import LSTM_MODEL
 
 import keras
 from keras.callbacks import ModelCheckpoint
@@ -18,14 +20,14 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 
 # Configuration
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 LIST_LABELS = ['normal', 'deep', 'strong']
 N_CLASSES = len(LIST_LABELS)
 print(LIST_LABELS)
 LR = 3
 N_EPOCHS = 30
-INPUT_SIZE = (40, 126, 1)
-
+# INPUT_SIZE = (40, 126, 1)
+INPUT_SIZE = (128, 40, 126, 1)
 SOURCE_DEV =  'D:/Do An/Datasets/Breath_datasets_wav/Training/developement/output/'
 SOURCE_TEST =  'D:/Do An/Datasets/Breath_datasets_wav/Training/validation/output/'
 BEST_MODEL_PATH = "D:/Do An/breath-deep/model/resnet/weights-improvement-30-1.08.hdf5"
@@ -33,8 +35,8 @@ BEST_MODEL_PATH = "D:/Do An/breath-deep/model/resnet/weights-improvement-30-1.08
 # config = tf.ConfigProto()
 # config.gpu_options.allow_growth = True
 # set_session(tf.Session(config=config))
-config = tf.ConfigProto(device_count = {'GPU': 1})
-sess = tf.Session(config=config)
+# config = tf.ConfigProto(device_count = {'GPU': 1})
+# sess = tf.Session(config=config)
 
 
 # Get devset
@@ -61,7 +63,7 @@ print("Validation samples: {}".format(N_VALID_SAMPLES))
 
 # Model training 
 
-MODEL_NAME = 'CNN'
+MODEL_NAME = 'LSTM'
 
 if (MODEL_NAME == 'CNN'):
         model = SimpleCNN.build(input_shape=INPUT_SIZE, classes=N_CLASSES)
@@ -71,6 +73,9 @@ if (MODEL_NAME == 'MobileNet'):
         model = MobileNet(input_shape=(INPUT_SIZE[0], INPUT_SIZE[1], 1), include_top=True, classes=N_CLASSES, weights=None)
 if (MODEL_NAME == 'MobileNetV2'):
         model = MobileNetV2(input_shape=(INPUT_SIZE[0], INPUT_SIZE[1], 1), include_top=True, classes=N_CLASSES, weights=None)
+if (MODEL_NAME == 'LSTM'):
+        model = LSTM_MODEL.build(data_input_shape=INPUT_SIZE, classes=N_CLASSES)
+
 
 
 model.summary()
@@ -80,7 +85,7 @@ model.compile(loss=keras.losses.sparse_categorical_crossentropy,
 
 
 mode = 'TRAIN'
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
+# sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 if mode == 'TRAIN':
         model.fit_generator(
                 train_generator,

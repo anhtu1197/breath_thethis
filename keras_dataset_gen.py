@@ -1,17 +1,21 @@
+
 import numpy as np
 import keras
 from scipy.io import wavfile
 import librosa
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 # from resnet import ResnetBuilder
-BATCH_SIZE = 32
-DIM = (40,126,1)
+BATCH_SIZE = 128
+# DIM = (40,126,1)
+
+DIM = (40,126)
 RESAMPLE = 8000
 class BreathDataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
     def __init__(self, directory, 
                     list_labels=['normal', 'deep', 'strong'], 
-                    batch_size=128,
+                    batch_size=BATCH_SIZE,
                     dim=None,
                     classes=None, 
                     shuffle=True):
@@ -78,6 +82,8 @@ class BreathDataGenerator(keras.utils.Sequence):
             if(len(data.shape) == 1):
                 # Extract the feature 
                 feature = librosa.feature.mfcc(y=data, sr=rate)
+                print("feature shape is")
+                print(feature.shape)
                 feature = np.resize(feature, DIM)
                 X.append(feature)
                 Y.append(list_label[i])

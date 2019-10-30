@@ -9,6 +9,8 @@ from keras import backend as K
 class SimpleCNN(object):
     @staticmethod
     def build(input_shape, classes):
+        print("---------------")
+        print(input_shape)
         model = Sequential()
         model.add(InputLayer(input_shape=input_shape))
         model.add(Conv2D(16, (8, 20), activation='relu'))
